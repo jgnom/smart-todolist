@@ -29,6 +29,18 @@ app.post('/api/tasks', (req, res) => {
   res.status(201).json(task);
 });
 
+// PUT обновить задачу
+app.put('/api/tasks/:id', (req, res) => {
+  const id = req.params.id;
+  const task = tasks.find(t => t.id == id);
+  if (!task) return res.status(404).json({ error: 'Задача не найдена' });
+
+  if (req.body.text !== undefined) task.text = req.body.text;
+  if (req.body.completed !== undefined) task.completed = req.body.completed;
+
+  res.json(task);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
