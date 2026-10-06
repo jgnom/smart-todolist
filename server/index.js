@@ -7,8 +7,15 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Сервер Smart TodoList работает');
+let tasks = [
+  { id: 1, text: 'Изучить React', completed: true },
+  { id: 2, text: 'Написать сервер', completed: false },
+];
+let nextId = 3;
+
+// GET все задачи
+app.get('/api/tasks', (req, res) => {
+  res.json(tasks);
 });
 
 app.listen(PORT, () => {
