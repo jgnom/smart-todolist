@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const PORT = 3001;
@@ -12,6 +13,18 @@ let tasks = [
   { id: 2, text: 'Написать сервер', completed: false },
 ];
 let nextId = 3;
+
+
+
+function apiKeyMiddleware(req, res, next) {
+  const key = req.headers['x-api-key'];
+  if (!key || key !== process.env.API_KEY) {
+    return res.status(401).json({ error: 'Неверный API-ключ' });
+  }
+  next();
+}
+
+app.use('/api/tasks', apiKeyMiddleware);
 
 
 function validateTask(req, res, next) {
