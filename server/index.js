@@ -13,13 +13,25 @@ let tasks = [
 ];
 let nextId = 3;
 
+
+function validateTask(req, res, next) {
+  const { text } = req.body;
+  if (!text || typeof text !== 'string' || text.trim().length === 0) {
+    return res.status(400).json({ error: 'Текст задачи обязателен' });
+  }
+  if (text.trim().length > 200) {
+    return res.status(400).json({ error: 'Максимум 200 символов' });
+  }
+  next();
+}
+
 // GET все задачи
 app.get('/api/tasks', (req, res) => {
   res.json(tasks);
 });
 
 // POST создать задачу
-app.post('/api/tasks', (req, res) => {
+app.post('/api/tasks', validateTask, (req, res) => {
   const task = {
     id: nextId++,
     text: req.body.text,
