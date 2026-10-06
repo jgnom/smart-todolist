@@ -1,9 +1,10 @@
-# Smart TodoList
+## API-эндпоинты
 
-Умный список задач — итоговый проект по курсу «Разработка программного обеспечения и веб-приложений».
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | /api/tasks | Получить все задачи |
+| POST | /api/tasks | Создать задачу |
+| PUT | /api/tasks/:id | Обновить задачу |
+| DELETE | /api/tasks/:id | Удалить задачу |
 
-## Технологии
-- Frontend: React, Vite, CSS3
-- Backend: Express.js, REST API
-- Тесты: Vitest + Testing Library
-- Деплой: Vercel
+**Заголовок:** `X-API-Key: <ключ>`
