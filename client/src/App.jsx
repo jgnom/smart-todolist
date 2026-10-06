@@ -31,7 +31,7 @@ export default function App() {
     setError(null);
     try {
       const newTask = await createTask(text);
-      setTasks([...tasks, newTask]);
+      setTasks(prev => [...prev, newTask]);
     } catch (err) {
       setError(err.message);
     }
@@ -39,11 +39,11 @@ export default function App() {
 
   const handleToggle = async (id) => {
     setError(null);
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
     try {
-      const updated = await updateTask(id, { completed: !task.completed });
-      setTasks(tasks.map(t => (t.id === id ? updated : t)));
+      const currentTask = tasks.find(t => t.id === id);
+      if (!currentTask) return;
+      const updated = await updateTask(id, { completed: !currentTask.completed });
+      setTasks(prev => prev.map(t => (t.id === id ? updated : t)));
     } catch (err) {
       setError(err.message);
     }
@@ -53,7 +53,7 @@ export default function App() {
     setError(null);
     try {
       await deleteTask(id);
-      setTasks(tasks.filter(t => t.id !== id));
+      setTasks(prev => prev.filter(t => t.id !== id));
     } catch (err) {
       setError(err.message);
     }
