@@ -18,6 +18,18 @@ app.get('/api/tasks', (req, res) => {
   res.json(tasks);
 });
 
+// POST создать задачу
+app.post('/api/tasks', (req, res) => {
+  const task = {
+    id: nextId++,
+    text: req.body.text,
+    completed: false,
+  };
+  tasks.push(task);
+  res.status(201).json(task);
+});
+
+
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
