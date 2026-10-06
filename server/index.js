@@ -31,8 +31,8 @@ app.post('/api/tasks', (req, res) => {
 
 // PUT обновить задачу
 app.put('/api/tasks/:id', (req, res) => {
-  const id = req.params.id;
-  const task = tasks.find(t => t.id == id);
+  const id = parseInt(req.params.id);
+  const task = tasks.find(t => t.id === id);
   if (!task) return res.status(404).json({ error: 'Задача не найдена' });
 
   if (req.body.text !== undefined) task.text = req.body.text;
@@ -44,8 +44,8 @@ app.put('/api/tasks/:id', (req, res) => {
 
 // DELETE удалить задачу
 app.delete('/api/tasks/:id', (req, res) => {
-  const id = req.params.id;
-  const index = tasks.findIndex(t => t.id == id);
+  const id = parseInt(req.params.id);
+  const task = tasks.find(t => t.id === id);
   if (index === -1) return res.status(404).json({ error: 'Задача не найдена' });
 
   tasks.splice(index, 1);
