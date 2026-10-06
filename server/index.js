@@ -42,6 +42,17 @@ app.put('/api/tasks/:id', (req, res) => {
 });
 
 
+// DELETE удалить задачу
+app.delete('/api/tasks/:id', (req, res) => {
+  const id = req.params.id;
+  const index = tasks.findIndex(t => t.id == id);
+  if (index === -1) return res.status(404).json({ error: 'Задача не найдена' });
+
+  tasks.splice(index, 1);
+  res.status(204).send();
+});
+
+
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
