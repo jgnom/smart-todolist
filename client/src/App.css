@@ -1,32 +1,43 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  padding: 40px 16px;
-}
-
+/* ===== Карточка приложения ===== */
 .app {
   width: 100%;
   max-width: 520px;
   background: #fff;
   border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-h1 { text-align: center; margin-bottom: 24px; }
+.app > h1 {
+  font-size: 28px;
+  line-height: 1.2;
+  text-align: center;
+  margin: 0 0 24px;
+  color: #111827;
+}
 
-.todo-form { display: flex; gap: 8px; margin-bottom: 16px; }
+/* ===== Форма ===== */
+.todo-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .todo-form input {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;              /* иначе длинный текст растягивает контейнер */
   padding: 10px 14px;
   border: 2px solid #ddd;
   border-radius: 8px;
 }
+
+.todo-form input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
 .todo-form button {
+  flex: 0 0 auto;
   padding: 10px 20px;
   background: #4f46e5;
   color: #fff;
@@ -35,35 +46,177 @@ h1 { text-align: center; margin-bottom: 24px; }
   cursor: pointer;
 }
 
-.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.todo-form button:hover:not(:disabled) { background: #4338ca; }
+.todo-form button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.char-counter {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+  margin: 4px 0 16px;
+}
+
+/* ===== Фильтры ===== */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
 .filter-bar button {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 8px;
   border: 2px solid #e0e0e0;
   background: #fafafa;
   border-radius: 8px;
   cursor: pointer;
+  color: #374151;
 }
+
 .filter-bar button.active {
   border-color: #4f46e5;
   background: #eef2ff;
   color: #4f46e5;
+  font-weight: 600;
 }
 
-.todo-list { list-style: none; }
+/* ===== Список задач ===== */
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 .todo-item {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
+  gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid #eee;
 }
-.todo-item.completed span {
-  text-decoration: line-through;
-  color: #999;
+
+.todo-item label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;              /* критично для переноса длинных строк */
+  cursor: pointer;
+  text-align: left;
 }
 
+.todo-item input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.todo-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;   /* перенос непрерывной строки */
+  word-break: break-word;
+  white-space: normal;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.delete-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.delete-btn:hover:not(:disabled) { background: #fee2e2; color: #dc2626; }
+.delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===== Состояния ===== */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+  text-align: left;
+}
+
+.error-banner button {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: #b91c1c;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.loading,
+.empty {
+  padding: 24px 0;
+  text-align: center;
+  color: #6b7280;
+}
+
+.load-error {
+  padding: 16px;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  text-align: center;
+  color: #374151;
+  font-size: 14px;
+}
+
+.retry-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 2px solid #4f46e5;
+  background: #fff;
+  color: #4f46e5;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.retry-btn:hover { background: #eef2ff; }
+
+/* ===== Адаптив ===== */
 @media (max-width: 480px) {
-  .app { padding: 20px; }
-  .todo-form, .filter-bar { flex-direction: column; }
+  #root { padding: 0; }
+
+  .app {
+    max-width: 100%;
+    min-height: 100vh;
+    padding: 20px 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .app > h1 { font-size: 24px; margin-bottom: 20px; }
+
+  .todo-form,
+  .filter-bar { flex-direction: column; }
+
+  .todo-form button,
+  .filter-bar button { width: 100%; }
+
+  .todo-item { gap: 8px; }
 }
