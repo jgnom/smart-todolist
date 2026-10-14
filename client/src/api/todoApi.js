@@ -1,41 +1,65 @@
-const API_URL = 'http://localhost:3001/api/tasks';
-const API_KEY = 'my-secret-key-2026';
 
-const headers = {
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api/tasks').replace(/\/$/, '');
+const API_KEY = import.meta.env.VITE_API_KEY || '';
+
+if (!API_KEY && import.meta.env.DEV) {
+  console.warn('[todoApi] VITE_API_KEY не задан в client/.env — сервер вернёт 401');
+}
+
+const baseHeaders = {
   'Content-Type': 'application/json',
   'X-API-Key': API_KEY,
 };
 
-export async function fetchTasks() {
-  const res = await fetch(API_URL, { headers });
-  if (!res.ok) throw new Error('Ошибка загрузки');
-  return res.json();
+
+async function request(path, options, fallbackMessage) {
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, { ...options, headers: baseHeaders });
+  } catch {
+    throw new Error('Сервер недоступен. Проверьте подключение и повторите попытку.');
+  }
+
+  if (res.status === 204) return null;
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    const message =
+      res.status === 401
+        ? 'Неверный ключ API (проверьте VITE_API_KEY в client/.env)'
+        : (data && data.error) || fallbackMessage;
+    const error = new Error(message);
+    error.status = res.status;
+    throw error;
+  }
+
+  return data;
 }
 
-export async function createTask(text) {
-  const res = await fetch(API_URL, {
+export function fetchTasks() {
+  return request('', { method: 'GET' }, 'Не удалось загрузить список задач');
+}
+
+export function createTask(text) {
+  return request('', {
     method: 'POST',
-    headers,
     body: JSON.stringify({ text }),
-  });
-  if (!res.ok) throw new Error('Ошибка создания');
-  return res.json();
+  }, 'Не удалось создать задачу');
 }
 
-export async function updateTask(id, updates) {
-  const res = await fetch(`${API_URL}/${id}`, {
+export function updateTask(id, updates) {
+  return request(`/${id}`, {
     method: 'PUT',
-    headers,
     body: JSON.stringify(updates),
-  });
-  if (!res.ok) throw new Error('Ошибка обновления');
-  return res.json();
+  }, 'Не удалось обновить задачу');
 }
 
-export async function deleteTask(id) {
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: 'DELETE',
-    headers,
-  });
-  if (!res.ok) throw new Error('Ошибка удаления');
+export function deleteTask(id) {
+  return request(`/${id}`, { method: 'DELETE' }, 'Не удалось удалить задачу');
 }
