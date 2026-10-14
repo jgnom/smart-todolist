@@ -103,7 +103,7 @@ smart-todolist/
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/ВАШ_ЛОГИН/smart-todolist.git
+git clone https://github.com/jgnom/smart-todolist.git
 cd smart-todolist
 ```
 
@@ -111,12 +111,13 @@ cd smart-todolist
 ```bash
 cd server
 npm install
-cp .env.example .env
+cp .env.example .env      # шаблон лежит в server/
 ```
 
-Откройте `server/.env` и задайте свой ключ:
+Задайте в `server/.env` свой ключ:
+
 ```
-API_KEY=your-secret-key-here
+API_KEY=my-secret-key-2026
 PORT=3001
 ```
 
@@ -124,27 +125,36 @@ PORT=3001
 ```bash
 npm run dev
 ```
-
 Сервер: http://localhost:3001
 
-### 3. Запуск клиента
 
-Откройте новый терминал:
+### 3. Запуск клиента (в новом терминале)
+
 ```bash
 cd client
 npm install
 cp .env.example .env
 ```
-Откройте `client/.env`:
+
+В `client/.env` укажите **тот же ключ**, что и на сервере:
+
 ```
 VITE_API_URL=http://localhost:3001/api/tasks
-VITE_API_KEY=your-secret-key-here
+VITE_API_KEY=my-secret-key-2026
 ```
+
 Запустите клиент:
 ```bash
 npm run dev
 ```
 Клиент: http://localhost:5173
+
+⚠️ Ключ обязателен в обоих файлах. Если значения не совпадают, сервер отвечает `401 Неверный API-ключ`.
+> После изменения `.env` клиента нужно перезапустить `npm run dev`.
+
+> ℹ️ Переменные с префиксом `VITE_` попадают в браузерную сборку — это ограничение клиентских env-переменных, а не ошибка хранения: в репозитории ключей нет, значение задаётся при развёртывании.
+
+
 
 ### Тестирование
 ```bash 
@@ -160,9 +170,74 @@ FilterBar 1 Переключение фильтра по клику
 ## Документация API
 
 Базовый URL: `http://localhost:3001/api/tasks`
+Обязательный заголовок для всех запросов: `X-API-Key: <ключ из .env>`
+Формат тела и ответов: `application/json`
 
-Обязательный заголовок для всех запросов:
+### Эндпоинты
+
+| Метод | Маршрут | Описание | Тело запроса | Успех | Ошибки |
+|-------|---------|----------|--------------|-------|--------|
+| GET | `/api/tasks` | Список всех задач | — | `200` + массив задач | `401` |
+| GET | `/api/tasks/:id` | Одна задача | — | `200` + объект задачи | `400`, `401`, `404` |
+| POST | `/api/tasks` | Создать задачу | `{ "text": string }` | `201` + созданная задача | `400`, `401` |
+| PUT | `/api/tasks/:id` | Частичное обновление | `{ "text"?: string, "completed"?: boolean }` | `200` + обновлённая задача | `400`, `401`, `404` |
+| DELETE | `/api/tasks/:id` | Удалить задачу | — | `204` без тела | `400`, `401`, `404` |
+
+### Модель задачи
+
+```json
+{ "id": 1, "text": "Изучить React", "completed": true }
 ```
-X-API-Key: <ваш ключ из .env>
+
+### Ограничения валидации
+
+- `text` — строка, не пустая после `trim()`, не длиннее **200** символов;
+- `completed` — строго `boolean` (строка `"false"` отклоняется с `400`);
+- тело запроса обязательно для POST и PUT;
+- неизвестные поля в PUT отклоняются с `400`.
+
+### Коды ответов
+
+| Код | Значение | Пример тела |
+|-----|----------|-------------|
+| 200 | Успех (GET, PUT) | `{ "id": 2, "text": "Написать сервер", "completed": false }` |
+| 201 | Задача создана | `{ "id": 3, "text": "Новая задача", "completed": false }` |
+| 204 | Задача удалена, тело пустое | — |
+| 400 | Ошибка валидации / некорректный id или JSON | `{ "error": "Максимум 200 символов" }` |
+| 401 | Нет заголовка `X-API-Key` или ключ неверный | `{ "error": "Неверный API-ключ" }` |
+| 404 | Задача или маршрут не найдены | `{ "error": "Задача не найдена" }` |
+| 500 | Внутренняя ошибка сервера | `{ "error": "Внутренняя ошибка сервера" }` |
+
+### Примеры запросов
+
+```bash
+KEY=my-secret-key-2026
+BASE=http://localhost:3001/api/tasks
+
+# Список задач
+curl -H "X-API-Key: $KEY" $BASE
+
+# Создание
+curl -X POST $BASE -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+     -d '{"text":"Купить молоко"}'
+
+# Смена статуса
+curl -X PUT $BASE/3 -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+     -d '{"completed":true}'
+
+# Переименование
+curl -X PUT $BASE/3 -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+     -d '{"text":"Купить молоко и хлеб"}'
+
+# Удаление
+curl -i -X DELETE $BASE/3 -H "X-API-Key: $KEY"
+
+# Пример ошибки 400
+curl -X PUT $BASE/3 -H "X-API-Key: $KEY" -H "Content-Type: application/json" \
+     -d '{"completed":"false"}'
 ```
+
+### Хранение данных
+
+Задачи хранятся в памяти процесса (`let tasks = []`). При перезапуске сервера список возвращается к стартовому состоянию
 
